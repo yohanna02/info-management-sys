@@ -1,78 +1,68 @@
-# React + TypeScript + Vite
+# Computer Engineering Department — Student Records
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web app for managing student records for the Computer Engineering
+department. Built with React, Vite, and Convex. Authentication is
+provided by Convex Auth (email + password).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Admin sign in / sign up (Convex Auth).
+- Student records with full identity, contact, academic, and guardian
+  fields, scoped to the Computer Engineering department.
+- Search, filter by level and status, and paginated lists.
+- Create, edit, and delete student records.
+- Dashboard with totals by level and status.
 
-## React Compiler
+## Local development
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev          # Vite dev server on http://localhost:5173
+npx convex dev       # Convex dev (separate terminal)
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+The first time you sign in you will need to create an admin account
+with the "Create account" tab on the login screen.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Scripts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Script            | What it does                            |
+| ----------------- | --------------------------------------- |
+| `npm run dev`     | Vite dev server                         |
+| `npm run build`   | Type-check and produce a production build |
+| `npm run preview` | Preview the production build locally    |
+| `npm run lint`    | Run ESLint                              |
+
+## Mobile app (React Native)
+
+`mobile/` holds an Expo (React Native) app with the same features and the same
+Convex backend. See `mobile/README.md` for setup.
+
+```bash
+npx convex dev       # from the repository root
+cd mobile && npm install && npx expo start
+```
+
+## Project layout
 
 ```
+convex/          Convex schema, queries, mutations, auth
+mobile/          Expo + Expo Router app (shared convex/ backend)
+src/
+  components/    Shared layout, NotFound
+  lib/           Router helpers, student types/helpers
+  pages/         Login, Dashboard, StudentsList, StudentForm, StudentDetail
+  types/         Bundler stubs
+src/App.tsx      Top-level router + auth gate
+src/main.tsx     ConvexAuthProvider + React entry point
+```
+
+## Notes
+
+- The Convex CLI only emits `dataModel.d.ts` (no `.js`), but Vite still
+  tries to resolve a runtime module for the `Id<...>` brand. A small
+  Vite plugin in `vite.config.ts` redirects those imports to
+  `src/types/convex-dataModel-stub.js`.
+- Convex Auth requires the `auth.config.ts` providers block to be
+  configured against `CONVEX_SITE_URL`, which is already set in
+  `.env.local`.
